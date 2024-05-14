@@ -23,10 +23,10 @@ import useDateTime from "@/hooks/DateTime";
 
 export default function Home() {
   const colors = useColorScheme();
-  const [clockText, setClockText] = useState("Mark");
+  const [clockText, setClockText] = useState("Clock In");
   const [loading, setLoading] = useState(true);
   const { currentTime, currentDate } = useDateTime();
-  const [attendanceMarked, setAttendanceMarked] = useState(false);
+  const [isClockedIn, setIsClockedIn] = useState(false);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -52,8 +52,14 @@ export default function Home() {
         const attendanceSnapshot = await getDoc(attendanceRef);
 
         if (attendanceSnapshot.exists()) {
-          setClockText("Marked");
-          setAttendanceMarked(true);
+          const data = attendanceSnapshot.data();
+          if (data.clockIn && !data.clockOut) {
+            setClockText("Clock Out");
+            setIsClockedIn(true);
+          } else if (data.clockIn && data.clockOut) {
+            setClockText("Marked");
+            setIsClockedIn(true);
+          }
         }
       } catch (error) {
         console.error("Error fetching attendance data: ", error);
@@ -61,7 +67,6 @@ export default function Home() {
         setLoading(false);
       }
     };
-    // checkInternetConnectivity();
     fetchAttendanceData();
   }, []);
 
@@ -80,16 +85,28 @@ export default function Home() {
     });
 
     try {
-      const attendanceRef = collection(db, "users", userUuid, "attendance");
-      const attendanceData = {
-        userId: userUuid,
-        date: serverTimestamp(),
-        time: serverTimestamp(),
-      };
+      const attendanceRef = doc(
+        collection(db, "users", userUuid, "attendance"),
+        today
+      );
+      const attendanceSnapshot = await getDoc(attendanceRef);
 
-      await setDoc(doc(attendanceRef, today), attendanceData);
-      setClockText("Marked");
-      setAttendanceMarked(true);
+      if (attendanceSnapshot.exists()) {
+        const data = attendanceSnapshot.data();
+        if (data.clockIn && !data.clockOut) {
+          await setDoc(
+            attendanceRef,
+            { clockOut: serverTimestamp() },
+            { merge: true }
+          );
+          setClockText("Marked");
+          setIsClockedIn(true);
+        }
+      } else {
+        await setDoc(attendanceRef, { clockIn: serverTimestamp() });
+        setClockText("Clock Out");
+        setIsClockedIn(true);
+      }
     } catch (error) {
       console.error("Error marking attendance: ", error);
     }
@@ -101,7 +118,6 @@ export default function Home() {
         <View>
           <Image source={logo} style={styles.logo} />
         </View>
-
         <View>
           <Text style={{ fontSize: 40, textAlign: "center" }}>
             {currentTime}
@@ -119,10 +135,14 @@ export default function Home() {
           ) : (
             <Pressable
               onPress={onPress}
-              disabled={attendanceMarked}
+              disabled={isClockedIn && clockText === "Marked"}
               style={[
                 styles.button,
-                attendanceMarked ? styles.buttonMarked : null,
+                clockText === "Clock Out"
+                  ? styles.buttonClockOut
+                  : clockText === "Marked"
+                  ? styles.buttonMarked
+                  : null,
               ]}
             >
               {({ pressed }) => (
@@ -166,8 +186,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     opacity: 0.9,
   },
-  buttonMarked: {
+  buttonClockOut: {
     backgroundColor: "#22c55e",
+  },
+  buttonMarked: {
+    backgroundColor: "red",
   },
   buttonText: {
     fontSize: 20,
@@ -175,8 +198,5 @@ const styles = StyleSheet.create({
     color: "white",
     marginTop: 10,
     textAlign: "center",
-  },
-  buttonTextMarked: {
-    color: "black",
   },
 });

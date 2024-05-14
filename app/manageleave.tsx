@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import Entypo from "@expo/vector-icons/Entypo";
 
 type LeaveRequest = {
   subject: string;
@@ -12,13 +13,14 @@ type LeaveRequest = {
   description: string;
   fromDate: string;
   toDate: string;
+  status: string;
 };
 type ModalVisibleState = { [key: number]: boolean };
 
 const data = [
   { leave: 10, type: "SICK", balance: 10 },
   { leave: 10, type: "CASUAL", balance: 20 },
-  { leave: 20, type: "ANNUAL", balance: 20 },
+  { leave: 20, type: "ANNUAL", balance: 20 },//minus from here
 ];
 
 const ManageLeave = () => {
@@ -50,6 +52,7 @@ const ManageLeave = () => {
             description: doc.data().description,
             fromDate: doc.data().fromDate.toDate().toLocaleDateString(),
             toDate: doc.data().toDate.toDate().toLocaleDateString(),
+            status: doc.data().status,
           })
         );
 
@@ -105,7 +108,7 @@ const ManageLeave = () => {
           leaveRequests.map((request, idx) => (
             <View key={idx}>
               <Button
-                title={`${request.fromDate} - ${request.toDate}`}
+                title={`(${request.status}) - ${request.fromDate} - ${request.toDate}`}
                 onPress={() =>
                   setModalsVisible((prev) => ({ ...prev, [idx]: !prev[idx] }))
                 }
@@ -119,6 +122,20 @@ const ManageLeave = () => {
                 content1={`Subject - ${request.subject}`}
                 content2={`Description - ${request.description}`}
                 content3={`Leave Dates - ${request.fromDate} - ${request.toDate}`}
+                content4={
+                  <View style={styles.statusContainer}>
+                    {request.status === "Accepted" && (
+                      <Entypo name="dot-single" size={50} color="green" />
+                    )}
+                    {request.status === "Pending" && (
+                      <Entypo name="dot-single" size={50} color="yellow" />
+                    )}
+                    {request.status === "Rejected" && (
+                      <Entypo name="dot-single" size={50} color="red" />
+                    )}
+                    <Text style={styles.statusText}>{request.status}</Text>
+                  </View>
+                }
                 buttonText="Close"
               />
             </View>
@@ -130,6 +147,7 @@ const ManageLeave = () => {
       <View style={styles.buttonContainer}>
         <Button
           title="Request Leave"
+          style={{ width: "100%" }}
           onPress={() => router.push("/reqleave")}
         />
       </View>
@@ -177,5 +195,14 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 20,
     marginTop: 20,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 1,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

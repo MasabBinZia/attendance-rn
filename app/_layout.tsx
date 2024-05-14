@@ -35,11 +35,9 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="login" options={{ title: "Login" }} />
         <Stack.Screen name="register" options={{ title: "Register" }} />
+        <Stack.Screen name="admin" options={{ title: "Admin / HR Login" }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "formSheet", title: "Menu" }}
-        />
+        <Stack.Screen name="modal" options={{ presentation: "formSheet", title: "Menu" }} />
         <Stack.Screen name="landing" options={{ headerShown: false }} />
         <Stack.Screen name="reqleave" options={{ title: "Request Leave" }} />
         <Stack.Screen name="manageleave" options={{ title: "Manage Leave" }} />

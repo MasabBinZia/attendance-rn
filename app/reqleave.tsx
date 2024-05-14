@@ -1,13 +1,14 @@
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Button from "@/components/Button";
 import DatePicker from "@/components/DatePicker";
 import Option from "@/components/options";
 import { auth, db } from "@/services/firebase";
 import { collection, doc, setDoc } from "firebase/firestore";
-import { useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 const Reqleave = () => {
   const [selectedOption, setSelectedOption] = useState<Options>("Annual Leave");
+  const [status, setStatus] = useState<Status>("Pending");
   const [subject, setSubject] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -23,6 +24,7 @@ const Reqleave = () => {
   };
 
   type Options = "Annual Leave" | "Casual Leave" | "Sick Leave";
+  type Status = "Pending" | "Accepted" | "Rejected";
 
   const handleOptionChange = (option: Options) => {
     setSelectedOption(option);
@@ -55,6 +57,7 @@ const Reqleave = () => {
       const leavesData = {
         userId: userUuid,
         leaveType: selectedOption,
+        status: status,
         subject,
         description,
         fromDate: selectedFromDate,
@@ -62,11 +65,17 @@ const Reqleave = () => {
       };
       await setDoc(doc(leaveRef, today), leavesData);
       setSelectedOption("Annual Leave");
+      setSubject("");
+      setDescription("");
+      setSelectedFromDate(new Date());
+      setSelectedToDate(new Date());
       setIsLoading(false);
+      setIsButtonDisabled(false);
       alert("Request Submitted Successfully 🎉");
     } catch (error) {
       console.error("Error adding leavesData: ", error);
       setIsLoading(false);
+      setIsButtonDisabled(false);
       alert("Error submitting request.");
     }
   };
@@ -84,13 +93,7 @@ const Reqleave = () => {
           <TextInput
             id="subject"
             placeholder="Subject"
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              width: "100%",
-              padding: 2,
-              height: 50,
-            }}
+            style={styles.input}
             value={subject}
             onChangeText={setSubject}
           />
@@ -98,24 +101,10 @@ const Reqleave = () => {
             id="description"
             placeholder="Description"
             value={description}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              width: "100%",
-              padding: 2,
-              height: 50,
-            }}
+            style={styles.input}
             onChangeText={setDescription}
           />
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignContent: "center",
-              gap: 30,
-              marginHorizontal: 30,
-            }}
-          >
+          <View style={styles.dateContainer}>
             <View>
               <Text style={{ fontWeight: "bold" }}>Date From</Text>
               <DatePicker
@@ -139,7 +128,7 @@ const Reqleave = () => {
           </View>
           <Button
             style={{ width: "100%" }}
-            title={isLoading ? "Submiting Request..." : "Request Leave"}
+            title={isLoading ? "Submitting Request..." : "Request Leave"}
             disabled={isLoading || isButtonDisabled}
             onPress={onPress}
           />
@@ -157,23 +146,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#7dd3fc",
     paddingHorizontal: 20,
   },
-  logo: {
-    width: 300,
-    height: 300,
-    resizeMode: "contain",
-  },
-  textContainer: {
-    padding: 20,
-  },
   title: {
     fontSize: 40,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 10,
-    fontWeight: "bold",
+  input: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: "100%",
+    padding: 2,
+    height: 50,
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 30,
   },
   datePicker: {
     borderColor: "blue",

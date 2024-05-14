@@ -7,7 +7,8 @@ interface ModalProps {
   title: string;
   content1: string;
   content2: string;
-  content3?: string; // Optional
+  content3?: string;
+  content4?: React.ReactNode;
   buttonText: string;
 }
 
@@ -18,6 +19,7 @@ const ModalComponent = ({
   content1,
   content2,
   content3,
+  content4,
   buttonText,
 }: ModalProps) => {
   return (
@@ -37,6 +39,7 @@ const ModalComponent = ({
             <Text style={styles.modalText}>{content1}</Text>
             <Text style={styles.modalText}>{content2}</Text>
             {content3 && <Text style={styles.modalText}>{content3}</Text>}
+            {content4 && <View>{content4}</View>}
             <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => setModalVisible(!modalVisible)}
@@ -50,7 +53,7 @@ const ModalComponent = ({
   );
 };
 
-export default ModalComponent
+export default ModalComponent;
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -62,7 +65,7 @@ const styles = StyleSheet.create({
   modalView: {
     width: "80%",
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: "#67e8f9",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -83,6 +86,7 @@ const styles = StyleSheet.create({
   },
   buttonClose: {
     backgroundColor: "red",
+    width:"100%"
   },
   textStyle: {
     color: "white",

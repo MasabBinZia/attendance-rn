@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -12,31 +11,32 @@ import {
 } from "react-native";
 
 import logo from "../assets/images/logo.png";
-import { auth } from "@/services/firebase";
 import Button from "@/components/Button";
 
 const AdminLoginScreen = () => {
-  const [email, setEmail] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
+  const hardcodedUserName = "zaeem";
+  const hardcodedPassword = "zaeem123";
+
   const onHandleLogin = () => {
-    if (email !== "" && password !== "" && !isLoading) {
+    if (userName !== "" && password !== "" && !isLoading) {
       setIsButtonDisabled(true);
       setIsLoading(true);
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          console.log("Login success");
-          alert("Login successfully 😊");
-          router.replace("/");
-          setIsLoading(false);
-        })
-        .catch((err: any) => {
-          Alert.alert("Login error", err.message);
-          setIsLoading(false);
-        });
+      if (userName === hardcodedUserName && password === hardcodedPassword) {
+        console.log("Login success");
+        Alert.alert("Login successfully 😊");
+        router.replace("/adminscreen");
+      } else {
+        Alert.alert("Login error", "Invalid User Name or password");
+      }
+
+      setIsLoading(false);
+      setIsButtonDisabled(false);
     }
   };
 
@@ -55,11 +55,10 @@ const AdminLoginScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.loginInputs}>
         <Image source={logo} style={styles.logo} />
-
         <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
+          placeholder="UserName"
+          value={userName}
+          onChangeText={setUserName}
           style={{
             backgroundColor: "white",
             borderRadius: 10,
@@ -87,7 +86,6 @@ const AdminLoginScreen = () => {
           style={{ width: "100%" }}
           disabled={isButtonDisabled || isLoading}
         />
-        
       </View>
     </ScrollView>
   );

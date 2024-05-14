@@ -5,7 +5,6 @@ import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 
-
 export default function TabLayout() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background for the loader
-    zIndex: 999, // Ensures the loader is on top of other content
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 999,
   },
 });
