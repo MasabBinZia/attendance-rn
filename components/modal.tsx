@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalView: {
     width: "80%",
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   },
   buttonClose: {
     backgroundColor: "red",
-    width:"100%"
+    width: "100%",
   },
   textStyle: {
     color: "white",

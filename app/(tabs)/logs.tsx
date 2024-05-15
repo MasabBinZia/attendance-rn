@@ -70,7 +70,6 @@ export default function Logs() {
         });
 
         setMarkedDates(fetchedMarkedDates);
-        console.log(fetchedMarkedDates);
       } catch (error) {
         console.error("Error fetching marked dates: ", error);
       } finally {

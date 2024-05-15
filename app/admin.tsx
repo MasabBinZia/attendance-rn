@@ -9,7 +9,6 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
-
 import logo from "../assets/images/logo.png";
 import Button from "@/components/Button";
 

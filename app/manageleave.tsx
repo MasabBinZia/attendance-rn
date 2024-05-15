@@ -1,10 +1,10 @@
-import Button from "@/components/Button";
-import ModalComponent from "@/components/modal";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from "@/services/firebase";
 import { router } from "expo-router";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import Button from "@/components/Button";
+import ModalComponent from "@/components/modal";
 import Entypo from "@expo/vector-icons/Entypo";
 
 type LeaveRequest = {
@@ -15,18 +15,24 @@ type LeaveRequest = {
   toDate: string;
   status: string;
 };
+
 type ModalVisibleState = { [key: number]: boolean };
 
-const data = [
-  { leave: 10, type: "SICK", balance: 10 },
-  { leave: 10, type: "CASUAL", balance: 20 },
-  { leave: 20, type: "ANNUAL", balance: 20 },//minus from here
-];
+type LeaveBalances = {
+  sick: number;
+  casual: number;
+  annual: number;
+};
 
 const ManageLeave = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalsVisible, setModalsVisible] = useState<ModalVisibleState>({});
+  const [leaveBalances, setLeaveBalances] = useState<LeaveBalances>({
+    sick: 10,
+    casual: 10,
+    annual: 20,
+  });
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -36,7 +42,7 @@ const ManageLeave = () => {
       return;
     }
 
-    const fetchLeaveRequests = async () => {
+    const fetchLeaveData = async () => {
       const userUuid = user.uid;
       const leaveRequestsQuery = query(
         collection(db, "users", userUuid, "leaves"),
@@ -45,23 +51,40 @@ const ManageLeave = () => {
 
       try {
         const querySnapshot = await getDocs(leaveRequestsQuery);
-        const requests: LeaveRequest[] = querySnapshot.docs.map(
-          (doc, index) => ({
-            subject: doc.data().subject,
-            type: doc.data().leaveType,
-            description: doc.data().description,
-            fromDate: doc.data().fromDate.toDate().toLocaleDateString(),
-            toDate: doc.data().toDate.toDate().toLocaleDateString(),
-            status: doc.data().status,
-          })
-        );
+        const requests: LeaveRequest[] = querySnapshot.docs.map((doc) => ({
+          subject: doc.data().subject,
+          type: doc.data().leaveType,
+          description: doc.data().description,
+          fromDate: doc.data().fromDate.toDate().toLocaleDateString(),
+          toDate: doc.data().toDate.toDate().toLocaleDateString(),
+          status: doc.data().status,
+        }));
 
         setLeaveRequests(requests);
-        const initialModalsState: ModalVisibleState = ({} = {});
+        const initialModalsState: ModalVisibleState = {};
         requests.forEach((_, idx) => {
           initialModalsState[idx] = false;
         });
         setModalsVisible(initialModalsState);
+
+        let sickLeaves = 0;
+        let casualLeaves = 0;
+        let annualLeaves = 0;
+
+        requests.forEach((request) => {
+          if (request.status === "Accepted") {
+            if (request.type === "Sick Leave") sickLeaves++;
+            if (request.type === "Casual Leave") casualLeaves++;
+            if (request.type === "Annual Leave") annualLeaves++;
+          }
+        });
+
+        setLeaveBalances({
+          sick: 10 - sickLeaves,
+          casual: 10 - casualLeaves,
+          annual: 20 - annualLeaves,
+        });
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching leave requests: ", error);
@@ -69,35 +92,34 @@ const ManageLeave = () => {
       }
     };
 
-    fetchLeaveRequests();
+    fetchLeaveData();
   }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Leaves Balances</Text>
-        {data.map((leave, idx) => (
-          <View
-            key={idx}
-            style={{
-              width: 300,
-              height: 100,
-              margin: 5,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#67e8f9",
-            }}
-          >
-            <Text style={{ color: "black", fontSize: 30, fontWeight: "bold" }}>
-              {leave.leave}
-            </Text>
-            <Text style={{ color: "black", fontSize: 10 }}>{leave.type}</Text>
-            <Text style={{ color: "black", fontSize: 10 }}>
-              {leave.balance} Leaves
-            </Text>
-          </View>
-        ))}
+        <View style={styles.leaveBalanceCard}>
+          <Text style={{ color: "black", fontSize: 30, fontWeight: "bold" }}>
+            {leaveBalances.sick}
+          </Text>
+          <Text style={{ color: "black", fontSize: 10 }}>SICK</Text>
+          <Text style={{ color: "black", fontSize: 10 }}>10 Leaves</Text>
+        </View>
+        <View style={styles.leaveBalanceCard}>
+          <Text style={{ color: "black", fontSize: 30, fontWeight: "bold" }}>
+            {leaveBalances.casual}
+          </Text>
+          <Text style={{ color: "black", fontSize: 10 }}>CASUAL</Text>
+          <Text style={{ color: "black", fontSize: 10 }}>10 Leaves</Text>
+        </View>
+        <View style={styles.leaveBalanceCard}>
+          <Text style={{ color: "black", fontSize: 30, fontWeight: "bold" }}>
+            {leaveBalances.annual}
+          </Text>
+          <Text style={{ color: "black", fontSize: 10 }}>ANNUAL</Text>
+          <Text style={{ color: "black", fontSize: 10 }}>20 Leaves</Text>
+        </View>
       </View>
       <View style={styles.requestsContainer}>
         <Text style={styles.requestsTitle}>Leave Requests</Text>
@@ -110,13 +132,19 @@ const ManageLeave = () => {
               <Button
                 title={`(${request.status}) - ${request.fromDate} - ${request.toDate}`}
                 onPress={() =>
-                  setModalsVisible((prev) => ({ ...prev, [idx]: !prev[idx] }))
+                  setModalsVisible((prev) => ({
+                    ...prev,
+                    [idx]: !prev[idx],
+                  }))
                 }
               />
               <ModalComponent
                 modalVisible={modalsVisible[idx] || false}
                 setModalVisible={(isVisible: any) =>
-                  setModalsVisible((prev) => ({ ...prev, [idx]: isVisible }))
+                  setModalsVisible((prev) => ({
+                    ...prev,
+                    [idx]: isVisible,
+                  }))
                 }
                 title={request.type}
                 content1={`Subject - ${request.subject}`}
@@ -204,5 +232,14 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  leaveBalanceCard: {
+    width: 300,
+    height: 100,
+    margin: 5,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#67e8f9",
   },
 });

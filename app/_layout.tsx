@@ -37,10 +37,14 @@ export default function RootLayout() {
         <Stack.Screen name="register" options={{ title: "Register" }} />
         <Stack.Screen name="admin" options={{ title: "Admin / HR Login" }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "formSheet", title: "Menu" }} />
+        <Stack.Screen
+          name="modal"
+          options={{ presentation: "formSheet", title: "Menu" }}
+        />
         <Stack.Screen name="landing" options={{ headerShown: false }} />
         <Stack.Screen name="reqleave" options={{ title: "Request Leave" }} />
         <Stack.Screen name="manageleave" options={{ title: "Manage Leave" }} />
+        <Stack.Screen name="adminscreen" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
