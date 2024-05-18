@@ -9,40 +9,37 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
+
 import logo from "../assets/images/logo.png";
 import Button from "@/components/Button";
 
 const AdminLoginScreen = () => {
-  const [userName, setUserName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
-  const hardcodedUserName = "zaeem";
-  const hardcodedPassword = "zaeem123";
+  const HARD_CODED_EMAIL = "zaeem@gmail.com";
+  const HARD_CODED_PASSWORD = "zaeem123";
 
   const onHandleLogin = () => {
-    if (userName !== "" && password !== "" && !isLoading) {
+    if (email !== "" && password !== "" && !isLoading) {
       setIsButtonDisabled(true);
       setIsLoading(true);
-
-      if (userName === hardcodedUserName && password === hardcodedPassword) {
+      if (email === HARD_CODED_EMAIL && password === HARD_CODED_PASSWORD) {
         console.log("Login success");
-        Alert.alert("Login successfully 😊");
+        alert("Login successfully 😊");
         router.replace("/adminscreen");
       } else {
-        Alert.alert("Login error", "Invalid User Name or password");
+        Alert.alert("Login error", "Invalid email or password");
       }
-
       setIsLoading(false);
       setIsButtonDisabled(false);
     }
   };
 
   useEffect(() => {
-    const backAction = () => {
-      return true;
-    };
+    const backAction = () => true;
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       backAction
@@ -55,9 +52,9 @@ const AdminLoginScreen = () => {
       <View style={styles.loginInputs}>
         <Image source={logo} style={styles.logo} />
         <TextInput
-          placeholder="UserName"
-          value={userName}
-          onChangeText={setUserName}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
           style={{
             backgroundColor: "white",
             borderRadius: 10,
@@ -79,6 +76,7 @@ const AdminLoginScreen = () => {
           }}
           secureTextEntry
         />
+
         <Button
           title={isLoading ? "Logging in..." : "Login"}
           onPress={onHandleLogin}
