@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   SafeAreaView,
@@ -39,46 +39,48 @@ export default function Logs() {
     return `${year}-${month}-${dayFormatted}`;
   };
 
-  useEffect(() => {
-    const fetchMarkedDates = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) {
-          alert("User not authenticated.");
-          setLoading(false);
-          return;
-        }
-
-        const userUuid = user.uid;
-        const attendanceCollection = collection(
-          db,
-          "users",
-          userUuid,
-          "attendance"
-        );
-        const attendanceSnapshot = await getDocs(attendanceCollection);
-
-        const fetchedMarkedDates: any = attendanceSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          const date = convertToDate(doc.id);
-          return {
-            date,
-            selected: true,
-            marked: true,
-            selectedColor: data.clockIn && data.clockOut ? "green" : "red",
-          };
-        });
-
-        setMarkedDates(fetchedMarkedDates);
-      } catch (error) {
-        console.error("Error fetching marked dates: ", error);
-      } finally {
+  const fetchMarkedDates = useCallback(async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("User not authenticated.");
         setLoading(false);
+        return;
       }
-    };
-
-    fetchMarkedDates();
+      const userUuid = user.uid;
+      const attendanceCollection = collection(
+        db,
+        "users",
+        userUuid,
+        "attendance"
+      );
+      const attendanceSnapshot = await getDocs(attendanceCollection);
+      const fetchedMarkedDates: any = attendanceSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const date = convertToDate(doc.id);
+        return {
+          date,
+          selected: true,
+          marked: true,
+          selectedColor: data.clockIn && data.clockOut ? "green" : "red",
+        };
+      });
+      setMarkedDates(fetchedMarkedDates);
+    } catch (error) {
+      console.error("Error fetching marked dates: ", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchMarkedDates();
+    const intervalId = setInterval(() => {
+      fetchMarkedDates();
+    }, 60 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [fetchMarkedDates]);
 
   if (loading) {
     return (

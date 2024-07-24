@@ -49,12 +49,13 @@ type User = {
   leaveRequests: LeaveRequest[];
 };
 
-type Status = "Pending" | "Accepted" | "Rejected";
-
 const AdminScreen = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [modalsVisible, setModalsVisible] = useState<ModalVisibleState>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [actionLoading, setActionLoading] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     const fetchUsersData = async () => {
@@ -117,6 +118,11 @@ const AdminScreen = () => {
   };
 
   const handleAccept = async (userId: string, requestId: string) => {
+    const key = `${userId}-${requestId}`;
+    if (actionLoading[key]) return;
+
+    setActionLoading((prev) => ({ ...prev, [key]: true }));
+
     try {
       const requestRef = doc(db, "users", userId, "leaves", requestId);
       await updateDoc(requestRef, { status: "Accepted" });
@@ -136,10 +142,17 @@ const AdminScreen = () => {
     } catch (error) {
       console.error("Error updating leave request status: ", error);
       Alert.alert("Error", "Failed to accept leave request");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [key]: false }));
     }
   };
 
   const handleReject = async (userId: string, requestId: string) => {
+    const key = `${userId}-${requestId}`;
+    if (actionLoading[key]) return;
+
+    setActionLoading((prev) => ({ ...prev, [key]: true }));
+
     try {
       const requestRef = doc(db, "users", userId, "leaves", requestId);
       await updateDoc(requestRef, { status: "Rejected" });
@@ -159,6 +172,8 @@ const AdminScreen = () => {
     } catch (error) {
       console.error("Error updating leave request status: ", error);
       Alert.alert("Error", "Failed to reject leave request");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [key]: false }));
     }
   };
 
@@ -211,18 +226,35 @@ const AdminScreen = () => {
                         content4={
                           <View style={{ width: "100%", gap: 2 }}>
                             <Button
-                              title="Accept"
+                              title={
+                                actionLoading[modalKey]
+                                  ? "Processing..."
+                                  : "Accept"
+                              }
                               onPress={() =>
                                 handleAccept(user.userId, request.id)
                               }
                               style={styles.acceptButton}
+                              disabled={
+                                request.status !== "Pending" ||
+                                actionLoading[modalKey]
+                              }
                             />
+
                             <Button
-                              title="Reject"
+                              title={
+                                actionLoading[modalKey]
+                                  ? "Processing..."
+                                  : "Reject"
+                              }
                               onPress={() =>
                                 handleReject(user.userId, request.id)
                               }
                               style={styles.rejectButton}
+                              disabled={
+                                request.status !== "Pending" ||
+                                actionLoading[modalKey]
+                              }
                             />
                           </View>
                         }

@@ -4,7 +4,8 @@ import Button from "@/components/Button";
 import DatePicker from "@/components/DatePicker";
 import Option from "@/components/options";
 import { auth, db } from "@/services/firebase";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, query, where, getDocs } from "firebase/firestore";
+
 
 const Reqleave = () => {
   const [selectedOption, setSelectedOption] = useState<Options>("Annual Leave");
@@ -54,6 +55,27 @@ const Reqleave = () => {
 
     try {
       const leaveRef = collection(db, "users", userUuid, "leaves");
+      const q = query(
+        leaveRef,
+        where("fromDate", "<=", selectedToDate),
+        where("toDate", ">=", selectedFromDate)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        alert("You already have a leave request for this date range.");
+        setIsLoading(false);
+        setIsButtonDisabled(false);
+        return;
+      }
+  
+      const today = new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+      });
+  
       const leavesData = {
         userId: userUuid,
         leaveType: selectedOption,
@@ -63,20 +85,20 @@ const Reqleave = () => {
         fromDate: selectedFromDate,
         toDate: selectedToDate,
       };
+  
       await setDoc(doc(leaveRef, today), leavesData);
       setSelectedOption("Annual Leave");
       setSubject("");
       setDescription("");
       setSelectedFromDate(new Date());
       setSelectedToDate(new Date());
-      setIsLoading(false);
-      setIsButtonDisabled(false);
       alert("Request Submitted Successfully 🎉");
     } catch (error) {
       console.error("Error adding leavesData: ", error);
+      alert("Error submitting request.");
+    } finally {
       setIsLoading(false);
       setIsButtonDisabled(false);
-      alert("Error submitting request.");
     }
   };
 

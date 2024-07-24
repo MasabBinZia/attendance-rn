@@ -13,15 +13,21 @@ interface MarkAbleCalendarProps {
   currentDate: string;
 }
 
-const MarkAbleCalendar = ({ markedDates, currentDate }: MarkAbleCalendarProps) => {
-  const transformedMarkedDates = markedDates.reduce((acc: any, item: MarkedDate) => {
-    acc[item.date] = {
-      selected: item.selected,
-      marked: item.marked,
-      selectedColor: item.selectedColor,
-    };
-    return acc;
-  }, {});
+const MarkAbleCalendar = ({
+  markedDates,
+  currentDate,
+}: MarkAbleCalendarProps) => {
+  const transformedMarkedDates = markedDates.reduce(
+    (acc: any, item: MarkedDate) => {
+      acc[item.date] = {
+        selected: item.selected,
+        marked: item.marked,
+        selectedColor: item.selectedColor,
+      };
+      return acc;
+    },
+    {}
+  );
 
   return (
     <Calendar
@@ -31,7 +37,7 @@ const MarkAbleCalendar = ({ markedDates, currentDate }: MarkAbleCalendarProps) =
         height: 350,
       }}
       current={currentDate}
-      onDayPress={(day) => {
+      onDayPress={(day: any) => {
         console.log("selected day", day);
       }}
       markedDates={transformedMarkedDates}

@@ -47,11 +47,6 @@ const Landing = () => {
           onPress={() => router.push("/admin")}
           style={{ width: "100%" }}
         />
-        {/* <Button
-          title="Admin"
-          onPress={() => router.push("/adminscreen")}
-          style={{ width: "100%" }}
-        /> */}
       </View>
     </SafeAreaView>
   );

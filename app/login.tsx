@@ -9,17 +9,19 @@ import {
   BackHandler,
   ScrollView,
   TextInput,
+  TouchableOpacity,
 } from "react-native";
-
 import logo from "../assets/images/logo.png";
 import { auth } from "@/services/firebase";
 import Button from "@/components/Button";
+import { Ionicons } from '@expo/vector-icons';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const onHandleLogin = () => {
     if (email !== "" && password !== "" && !isLoading) {
@@ -31,10 +33,15 @@ const LoginScreen = () => {
           alert("Login successfully 😊");
           router.replace("/");
           setIsLoading(false);
+          setEmail("");
+          setPassword("");
         })
         .catch((err: any) => {
           Alert.alert("Login error", err.message);
           setIsLoading(false);
+        })
+        .finally(() => {
+          setIsButtonDisabled(false);
         });
     }
   };
@@ -54,33 +61,31 @@ const LoginScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.loginInputs}>
         <Image source={logo} style={styles.logo} />
-
         <TextInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          style={{
-            backgroundColor: "white",
-            borderRadius: 10,
-            width: "100%",
-            padding: 2,
-            height: 50,
-          }}
+          style={styles.input}
         />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          style={{
-            backgroundColor: "white",
-            borderRadius: 10,
-            width: "100%",
-            padding: 2,
-            height: 50,
-          }}
-          secureTextEntry
-        />
-
+        <View style={styles.passwordContainer}>
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            style={styles.passwordInput}
+            secureTextEntry={!showPassword}
+          />
+          <TouchableOpacity 
+            style={styles.eyeIcon} 
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Ionicons 
+              name={showPassword ? "eye-off" : "eye"} 
+              size={24} 
+              color="black" 
+            />
+          </TouchableOpacity>
+        </View>
         <Button
           title={isLoading ? "Logging in..." : "Login"}
           onPress={onHandleLogin}
@@ -116,5 +121,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#7dd3fc",
     justifyContent: "center",
+  },
+  input: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: "100%",
+    padding: 10,
+    height: 50,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: "100%",
+    height: 50,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 10,
+  },
+  eyeIcon: {
+    padding: 10,
   },
 });

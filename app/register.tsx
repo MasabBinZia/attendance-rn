@@ -9,10 +9,12 @@ import {
   StyleSheet,
   TextInput,
   View,
+  TouchableOpacity,
 } from "react-native";
 import logo from "../assets/images/logo.png";
 import { router } from "expo-router";
 import Button from "@/components/Button";
+import { Ionicons } from '@expo/vector-icons';
 
 const RegisterScreen = () => {
   const [username, setUsername] = useState<string>("");
@@ -20,6 +22,7 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const onHandleSignup = async () => {
     setIsLoading(true);
@@ -28,15 +31,24 @@ const RegisterScreen = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         setIsLoading(false);
-        setDoc(doc(db, "users", user.uid), {
+        return setDoc(doc(db, "users", user.uid), {
           Name: username,
           Email: email,
           CreatedAt: new Date().toUTCString(),
         });
       })
-      .then(() => alert("Registered successfully 🎉"))
+      .then(() => {
+        alert("Registered successfully 🎉");
+        setUsername("");
+        setEmail("");
+        setPassword("");
+      })
       .catch((err: any) => {
-        alert(err.meassage);
+        alert(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setIsButtonDisabled(false);
       });
   };
 
@@ -55,51 +67,43 @@ const RegisterScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.RegisterInputs}>
         <Image source={logo} style={styles.logo} />
-
-        <View style={{ gap: 10 }}>
+        <View style={styles.inputContainer}>
           <TextInput
             id="Email"
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              width: "100%",
-              padding: 2,
-              height: 50,
-            }}
+            style={styles.input}
           />
           <TextInput
             id="username"
             placeholder="Username"
             value={username}
             onChangeText={setUsername}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              width: "100%",
-              padding: 2,
-              height: 50,
-            }}
+            style={styles.input}
           />
-          <TextInput
-            id="Password"
-            placeholder="Password"
-            secureTextEntry
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              width: "100%",
-              padding: 2,
-              height: 50,
-            }}
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              id="Password"
+              placeholder="Password"
+              secureTextEntry={!showPassword}
+              style={styles.passwordInput}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity 
+              style={styles.eyeIcon} 
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Ionicons 
+                name={showPassword ? "eye-off" : "eye"} 
+                size={24} 
+                color="black" 
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View style={{ gap: 10 }}>
+        <View style={styles.buttonContainer}>
           <Button
             style={{ width: "100%" }}
             title={isLoading ? "Registering..." : "Register"}
@@ -136,5 +140,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#7dd3fc",
     justifyContent: "center",
+  },
+  inputContainer: {
+    gap: 10,
+  },
+  input: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: "100%",
+    padding: 10,
+    height: 50,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: "100%",
+    height: 50,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 10,
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  buttonContainer: {
+    gap: 10,
   },
 });

@@ -1,12 +1,7 @@
 import Button from "@/components/Button";
-import { auth } from "@/services/firebase";
 import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
-type LogoutError = {
-  message: string;
-  code?: string;
-};
 
 export default function AdminModalScreen() {
   const handleLogout = async () => {
@@ -20,17 +15,6 @@ export default function AdminModalScreen() {
   return (
     <View style={styles.container}>
       <Button style={{ width: "100%" }} title="LogOut" onPress={handleLogout} />
-
-      {/* <Button
-        title="Request Leave"
-        onPress={() => router.push("/reqleave")}
-        style={{ width: "100%" }}
-      />
-      <Button
-        title="Manage Leaves"
-        style={{ width: "100%" }}
-        onPress={() => router.push("/manageleave")}
-      /> */}
     </View>
   );
 }

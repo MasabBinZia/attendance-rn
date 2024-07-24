@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   SafeAreaView,
@@ -73,7 +74,7 @@ export default function Home() {
   const onPress = async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("User not authenticated.");
+      Alert.alert("Error", "User not authenticated.");
       return;
     }
 
@@ -94,21 +95,27 @@ export default function Home() {
       if (attendanceSnapshot.exists()) {
         const data = attendanceSnapshot.data();
         if (data.clockIn && !data.clockOut) {
+          setClockText("Marked");
+          setIsClockedIn(true);
           await setDoc(
             attendanceRef,
             { clockOut: serverTimestamp() },
             { merge: true }
           );
-          setClockText("Marked");
-          setIsClockedIn(true);
+          Alert.alert("Success", "You have successfully clocked out.");
         }
       } else {
-        await setDoc(attendanceRef, { clockIn: serverTimestamp() });
+        
         setClockText("Clock Out");
         setIsClockedIn(true);
+        await setDoc(attendanceRef, { clockIn: serverTimestamp() });
+        Alert.alert("Success", "You have successfully clocked in.");
       }
     } catch (error) {
       console.error("Error marking attendance: ", error);
+      Alert.alert("Error", "Failed to mark attendance. Please try again.");
+      setClockText(isClockedIn ? "Clock Out" : "Clock In");
+      setIsClockedIn(!isClockedIn);
     }
   };
 
@@ -126,7 +133,7 @@ export default function Home() {
             {currentDate}
           </Text>
           <Text style={{ fontSize: 20, textAlign: "center" }}>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+            Efficient Attendance, Powered by Agritime.
           </Text>
         </View>
         <View style={styles.container}>
