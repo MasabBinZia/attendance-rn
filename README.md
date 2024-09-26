@@ -1,50 +1,97 @@
-# Welcome to your Expo app 👋
+<p>
+  <img src="https://github.com/user-attachments/assets/a9eb5bc5-f5ba-4732-a3f2-5f5eaf6a6e1e" alt="Elite Accounting Hub Logo" width="100" height="100">
+</p>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Agri Time - Employee Attendance Mobile App
 
-## Get started
+Agri Time is an attendance tracking mobile application designed for in-house employees within an organization. It helps organizations monitor and manage employee attendance efficiently through mobile devices.
 
-1. Install dependencies
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Tech Stack](#tech-stack)
+- [Firebase Setup](#firebase-setup)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- Employee clock-in and clock-out functionality.
+- Real-time attendance tracking and storage using Firebase.
+- Mobile-friendly interface built with React Native and Expo.
+- Secure authentication with Firebase Authentication.
+- Employee attendance history and analytics.
+
+## Installation
+
+To set up the project locally, follow these steps:
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/MasabBinZia/attendance-rn.git
+   ```
+
+2. Navigate into the project directory:
+
+   ```bash
+   cd agri-time
+   ```
+
+3. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+4. Start the Expo development server:
 
    ```bash
-    npx expo start
+   expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. Scan the QR code in the Expo Go app on your mobile device to run the app.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Usage
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Employees can log in using their credentials.
+2. Once logged in, they can easily clock in or clock out with a single tap.
+3. Attendance data is stored in Firebase, allowing managers to track attendance in real-time.
+4. The app provides an attendance history and summary for each employee.
 
-## Get a fresh project
+## Tech Stack
 
-When you're ready, run:
+- **React Native**: For building the cross-platform mobile app.
+- **Expo**: For rapid development and testing on mobile devices.
+- **Firebase**: For real-time database, authentication, and cloud storage.
+- **TypeScript**: For type-safe and scalable development.
 
-```bash
-npm run reset-project
-```
+## Firebase Setup
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/).
+2. Add Firebase to your React Native project by following the instructions [here](https://firebase.google.com/docs/web/setup).
+3. Set up Firebase Authentication to manage user sign-ins.
+4. Set up a Firestore database to store attendance records.
+5. Add your Firebase configuration to your project as shown below:
 
-## Learn more
+   ```typescript
+   // firebaseConfig.ts
+   export const firebaseConfig = {
+     apiKey: "YOUR_API_KEY",
+     authDomain: "YOUR_AUTH_DOMAIN",
+     projectId: "YOUR_PROJECT_ID",
+     storageBucket: "YOUR_STORAGE_BUCKET",
+     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+     appId: "YOUR_APP_ID"
+   };
+   ```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Contributing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Contributions are welcome! Please fork this repository and submit a pull request for any improvements or bug fixes.
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is licensed under the MIT License.
